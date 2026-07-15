@@ -1,0 +1,7 @@
+
+<svg width="700" height="260" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8fafc"></rect>
+  <line x1="30" y1="220" x2="650" y2="220" stroke="#64748b"></line>
+  <line x1="30" y1="40" x2="30" y2="220" stroke="#64748b"></line>
+  <rect x="50" y="20" width="120" height="160" fill="#2563eb"></rect><text x="110" y="12" text-anchor="middle" font-size="12">DC-01</text><text x="110" y="205" text-anchor="middle" font-size="11">Terbukti teratasi</text> <rect x="230" y="20" width="120" height="160" fill="#2563eb"></rect><text x="290" y="12" text-anchor="middle" font-size="12">DC-02</text><text x="290" y="205" text-anchor="middle" font-size="11">Terbukti teratasi</text> <rect x="410" y="20" width="120" height="160" fill="#2563eb"></rect><text x="470" y="12" text-anchor="middle" font-size="12">DC-03</text><text x="470" y="205" text-anchor="middle" font-size="11">Terbukti teratasi</text>
+</svg>

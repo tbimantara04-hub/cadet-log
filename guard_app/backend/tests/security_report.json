@@ -1,0 +1,31 @@
+{
+  "server_url": "http://127.0.0.1:8000",
+  "results": [
+    {
+      "scenario": "baseline_valid_encrypted_payload",
+      "status_code": 200,
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "scenario": "tampered_ciphertext",
+      "status_code": 400,
+      "expected": "reject",
+      "passed": true
+    },
+    {
+      "scenario": "downgrade_plaintext",
+      "status_code": 403,
+      "expected": "reject",
+      "passed": true
+    }
+  ],
+  "pass_rate": 1.0,
+  "payload": {
+    "guard_id": "GUARD-001",
+    "student_name": "Satria Tegar Bimantara",
+    "destination": "Gerbang Utama",
+    "estimated_return": "2026-07-03 18:00",
+    "reason": "Pengujian keamanan Guard App UAS2"
+  }
+}

@@ -1,0 +1,20 @@
+
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Security Report</title></head>
+  <body style="font-family: Arial, sans-serif; padding: 24px;">
+    <h2>Hasil Pengujian Keamanan Guard App</h2>
+    <p><strong>Payload asli:</strong> {"guard_id": "GUARD-001", "student_name": "Satria Tegar Bimantara", "destination": "Gerbang Utama", "estimated_return": "2026-07-03 18:00", "reason": "Pengujian keamanan Guard App UAS2"}</p>
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead><tr><th>Skenario</th><th>Status</th><th>Target</th><th>Hasil</th></tr></thead>
+      <tbody><tr><td>baseline_valid_encrypted_payload</td><td>200</td><td>accept</td><td>Lulus</td></tr><tr><td>tampered_ciphertext</td><td>400</td><td>reject</td><td>Lulus</td></tr><tr><td>downgrade_plaintext</td><td>403</td><td>reject</td><td>Lulus</td></tr></tbody>
+    </table>
+    <h3>Grafik Status Code</h3>
+    <svg width="700" height="260" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f8fafc"></rect>
+      <line x1="30" y1="220" x2="650" y2="220" stroke="#64748b"></line>
+      <line x1="30" y1="40" x2="30" y2="220" stroke="#64748b"></line>
+      <rect x="40" y="131" width="60" height="89" fill="#2563eb"></rect><text x="70" y="123" text-anchor="middle" font-size="12">200</text><text x="70" y="235" text-anchor="middle" font-size="11">baseline_valid_encrypted_payload</text> <rect x="130" y="42" width="60" height="178" fill="#2563eb"></rect><text x="160" y="34" text-anchor="middle" font-size="12">400</text><text x="160" y="235" text-anchor="middle" font-size="11">tampered_ciphertext</text> <rect x="220" y="40" width="60" height="180" fill="#2563eb"></rect><text x="250" y="32" text-anchor="middle" font-size="12">403</text><text x="250" y="235" text-anchor="middle" font-size="11">downgrade_plaintext</text>
+    </svg>
+  </body>
+</html>
