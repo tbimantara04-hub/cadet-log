@@ -1,0 +1,13 @@
+# Virtual Environment
+.venv/
+__pycache__/
+
+# Private/Public Keys
+*.pem
+**/keys/*.pem
+
+# Databases & Excel Files
+*.db
+*.xlsx
+db_folder/
+db/

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from models import db, StudentEntry, AuditLog, User
 from datetime import datetime
@@ -8,6 +8,7 @@ import json
 import glob
 import pandas as pd
 import base64
+import queue
 
 app = Flask(__name__, static_folder='../static')
 CORS(app)
@@ -74,6 +75,16 @@ with app.app_context():
         db.session.add(default_user)
         db.session.commit()
 
+# Global list of queues for SSE clients
+announcement_queues = []
+
+def notify_clients():
+    for q in list(announcement_queues):
+        try:
+            q.put("update")
+        except Exception:
+            pass
+
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
@@ -97,6 +108,23 @@ def style():
 @app.route('/app.js')
 def js_app():
     return send_from_directory(app.static_folder, 'app.js')
+
+@app.route('/api/stream')
+def stream():
+    def event_stream():
+        q = queue.Queue()
+        announcement_queues.append(q)
+        try:
+            while True:
+                try:
+                    data = q.get(timeout=20)
+                    yield f"data: {data}\n\n"
+                except queue.Empty:
+                    yield "data: ping\n\n"
+        except GeneratorExit:
+            if q in announcement_queues:
+                announcement_queues.remove(q)
+    return Response(event_stream(), mimetype="text/event-stream")
 
 @app.route('/api/get_public_key', methods=['GET'])
 def get_public_key():
@@ -150,7 +178,7 @@ def submit_entry():
                 db.session.add(new_entry)
                 audit = AuditLog(
                     guard_id=guard_id,
-                    action=f"Input massal keluar untuk Mahasiswa NPM: {student['npm']}"
+                    action=f"{student['name']} - {student['npm']}"
                 )
                 db.session.add(audit)
         else:
@@ -167,11 +195,12 @@ def submit_entry():
 
             audit = AuditLog(
                 guard_id=guard_id,
-                action=f"Input data keluar untuk Mahasiswa NPM: {entry_data['npm']}"
+                action=f"{entry_data['name']} - {entry_data['npm']}"
             )
             db.session.add(audit)
         
         db.session.commit()
+        notify_clients()
 
         return jsonify({"status": "success", "message": "Data saved securely!"}), 200
     except Exception as e:
@@ -217,15 +246,26 @@ def login():
         return jsonify({"status": "error", "message": "Username atau password salah."}), 400
 @app.route('/api/get_entries', methods=['GET'])
 def get_entries():
-    entries = StudentEntry.query.order_by(StudentEntry.timestamp.desc()).all()
+    entries = StudentEntry.query.filter(StudentEntry.waktu_masuk == None).order_by(StudentEntry.timestamp.desc()).all()
     return jsonify([e.to_dict() for e in entries])
 
 @app.route('/api/delete_entry/<int:entry_id>', methods=['DELETE'])
 def delete_entry(entry_id):
     entry = StudentEntry.query.get(entry_id)
     if entry:
-        db.session.delete(entry)
+        now_time = datetime.utcnow()
+        entry.waktu_masuk = now_time
+        
+        # Update the corresponding AuditLog entry
+        audit = AuditLog.query.filter(
+            AuditLog.action.like(f"% - {entry.npm}"),
+            AuditLog.timestamp_masuk == None
+        ).order_by(AuditLog.timestamp_keluar.desc()).first()
+        if audit:
+            audit.timestamp_masuk = now_time
+            
         db.session.commit()
+        notify_clients()
         return jsonify({"status": "success"}), 200
     return jsonify({"status": "error", "message": "Not found"}), 404
 
@@ -234,13 +274,14 @@ def delete_all_entries():
     try:
         db.session.query(StudentEntry).delete()
         db.session.commit()
+        notify_clients()
         return jsonify({"status": "success"}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/get_audit_logs', methods=['GET'])
 def get_audit_logs():
-    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
+    logs = AuditLog.query.order_by(AuditLog.timestamp_keluar.desc()).all()
     return jsonify([l.to_dict() for l in logs])
 
 if __name__ == '__main__':

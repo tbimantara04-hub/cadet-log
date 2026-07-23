@@ -153,9 +153,27 @@
             }
         }
 
-        // Initialize and setup auto-refresh
+        // Initialize and setup real-time updates via SSE
         loadDashboardData();
-        setInterval(loadDashboardData, 10000);
+
+        let eventSource;
+        function connectSSE() {
+            eventSource = new EventSource('/api/stream');
+            eventSource.onmessage = function(event) {
+                if (event.data === 'update') {
+                    loadDashboardData();
+                }
+            };
+            eventSource.onerror = function() {
+                console.log("Koneksi real-time terputus. Mencoba menghubungkan kembali dalam 5 detik...");
+                eventSource.close();
+                setTimeout(connectSSE, 5000);
+            };
+        }
+        connectSSE();
+
+        // Fallback polling every 30 seconds
+        setInterval(loadDashboardData, 30000);
     </script>
 </body>
 </html>

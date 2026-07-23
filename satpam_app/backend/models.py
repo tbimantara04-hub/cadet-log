@@ -10,6 +10,7 @@ class StudentEntry(db.Model):
     name = db.Column(db.String(100), nullable=False)
     keterangan = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    waktu_masuk = db.Column(db.DateTime, nullable=True)
     guard_id = db.Column(db.String(50), nullable=False)
 
     def to_dict(self):
@@ -18,7 +19,8 @@ class StudentEntry(db.Model):
             'npm': self.npm,
             'name': self.name,
             'keterangan': self.keterangan,
-            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp else '',
+            'waktu_masuk': self.waktu_masuk.strftime('%Y-%m-%d %H:%M:%S') if self.waktu_masuk else None,
             'guard_id': self.guard_id
         }
 
@@ -27,14 +29,17 @@ class AuditLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     guard_id = db.Column(db.String(50), nullable=False)
     action = db.Column(db.String(255), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp_keluar = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp_masuk = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
+        t_keluar = self.timestamp_keluar.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp_keluar else ''
+        t_masuk = self.timestamp_masuk.strftime('%Y-%m-%d %H:%M:%S') if self.timestamp_masuk else '-'
         return {
             'id': self.id,
             'guard_id': self.guard_id,
             'action': self.action,
-            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            'timestamp': f"{t_keluar} - {t_masuk}"
         }
 
 from werkzeug.security import generate_password_hash, check_password_hash
