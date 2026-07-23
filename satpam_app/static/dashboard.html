@@ -6,6 +6,12 @@
     <title>Dashboard Gate Control</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Check authentication
+        if (!localStorage.getItem('auth_token') || localStorage.getItem('auth_user') !== 'monitor') {
+            window.location.href = '/login?redirect=/dashboard';
+        }
+    </script>
 </head>
 <body class="dashboard-body">
     <div class="wrapper dashboard-wrapper">

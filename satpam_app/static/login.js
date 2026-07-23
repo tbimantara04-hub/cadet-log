@@ -66,7 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok && data.status === 'success') {
                 localStorage.setItem('auth_token', data.token);
                 localStorage.setItem('auth_user', data.username);
-                window.location.href = '/';
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect');
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else if (data.username === 'monitor') {
+                    window.location.href = '/dashboard';
+                } else {
+                    window.location.href = '/';
+                }
             } else {
                 errorMsg.textContent = data.message || "Username atau password salah.";
                 errorMsg.style.display = 'block';
